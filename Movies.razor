@@ -1,0 +1,54 @@
+﻿@page "/movies"
+@rendermode InteractiveServer   
+<MudTextField T="string" @bind-Text="genreFilter" Immediate="true"
+              Label="Фильтр по жанру" Variant="Variant.Outlined"
+              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+              Style="max-width: 300px" />
+
+<MudStack RowSpacing="6" Class="mt-4 mb-6" Style="max-width: 300px">
+    <MudTextField T="string" @bind-Value="newTitle" Immediate="true" Label="Название" />
+    <MudTextField T="string" @bind-Value="newGenre" Immediate="true" Label="Жанр" />
+    
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddMovie">Добавить</MudButton>
+</MudStack>
+<PageTitle>Фильмы</PageTitle>
+
+<MudText Typo="Typo.h4" Class="mb-4">Фильмы нашего</MudText>
+<MudTable T="Movie" Items="GetFilteredMovies()" ="tempMovies" Hover="true" Striped="true" Bordered="true">
+
+    <HeaderContent>
+        <MudTh>Название</MudTh>
+        <MudTh>Жанр</MudTh>
+        <MudTh>Год</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel=>@</MudTd>
+        <MudTd DataLabel="Название">@context.Title</MudTd>
+        <MudTd DataLabel="Год">@context.Year</MudTd>
+    </RowTemplate>
+</MudTable>
+@code
+{
+    private record Movie(string Title, string Genre, int Year);
+    private List<Movie> movies = new(){
+        new 
+        new ("Бойцовский клуб", "драма", 1999),
+        new ("Джентльмены", "криминал", 2019),
+    };
+
+    private string genreFilter { get; set; } = string.Empty;
+    private List<Movie> GetFilteredMovies() => movies.Where(m => m.Genre.Contains(genreFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+    private List<Movie> tempMovies = new List<Movie>();
+    
+    private string newTitle = string.Empty;
+    private string newGenre = string.Empty;
+
+    private void AddMovie()
+    {
+        if (string.IsNullOrWhiteSpace(newTitle) || string.IsNullOrWhiteSpace(newGenre))
+            return;
+        movies.Add(new(newTitle, newGenre, DateTime.Now.Year));
+        newTitle = string.Empty;
+        newGenre = string.Empty;
+    }
+}
